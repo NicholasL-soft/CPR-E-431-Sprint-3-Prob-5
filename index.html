@@ -1,0 +1,834 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithmic Complexity & Side-Channel Security Lab</title>
+<style>
+:root {
+  --bg:#101827;
+  --panel:#192438;
+  --panel2:#202f47;
+  --text:#edf3fc;
+  --muted:#b5c2d6;
+  --accent:#76d7c4;
+  --accent2:#8db8ff;
+  --warning:#ffca75;
+  --danger:#ff8585;
+  --border:#35455e;
+}
+* {box-sizing:border-box}
+html {scroll-behavior:smooth}
+body {
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.6;
+}
+header {
+  padding:42px 20px 32px;
+  background:linear-gradient(130deg,#183b50,#25294d 70%,#37274e);
+  border-bottom:1px solid var(--border);
+}
+.wrap {width:min(1100px,92%);margin:auto}
+.eyebrow {
+  color:var(--accent);font-size:.8rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.13em;
+}
+h1 {font-size:clamp(2rem,5vw,3.4rem);line-height:1.12;margin:12px 0}
+h2 {font-size:clamp(1.45rem,3vw,2rem);margin-top:0}
+h3 {margin-bottom:8px}
+p {color:var(--muted)}
+nav {
+  position:sticky;top:0;z-index:10;
+  background:#111b2bf2;backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.navlinks {
+  display:flex;gap:8px;padding:10px 0;
+  overflow-x:auto;white-space:nowrap;
+}
+nav a {
+  color:var(--text);text-decoration:none;
+  border:1px solid var(--border);border-radius:999px;
+  padding:6px 12px;font-size:.88rem;
+}
+nav a:hover {border-color:var(--accent);color:var(--accent)}
+main {padding:26px 0 60px}
+section {
+  scroll-margin-top:76px;
+  margin:20px 0;padding:clamp(18px,3vw,30px);
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:18px;
+}
+.grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.three {grid-template-columns:repeat(3,minmax(0,1fr))}
+.card {
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:14px;padding:17px;min-width:0;
+}
+.pill {
+  display:inline-block;padding:3px 9px;border-radius:999px;
+  background:#294b53;color:var(--accent);font-size:.8rem;font-weight:700;
+}
+.warning {color:var(--warning)}
+.danger {color:var(--danger)}
+.good {color:var(--accent)}
+label {display:block;margin:13px 0 5px;color:var(--text);font-weight:650}
+input[type="range"] {width:100%;accent-color:var(--accent)}
+input[type="text"],select,button {
+  color:var(--text);background:#111c2d;
+  border:1px solid #526680;border-radius:9px;
+  padding:10px 12px;font:inherit;
+}
+select {width:100%}
+button {cursor:pointer;font-weight:700}
+button:hover {border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible {
+  outline:2px solid var(--accent);outline-offset:3px;
+}
+.controls {display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.result {
+  margin-top:12px;padding:13px;border-radius:10px;
+  background:#111c2d;border:1px solid var(--border);
+}
+.meter {
+  height:12px;background:#0d1523;border-radius:99px;
+  overflow:hidden;margin:10px 0;
+}
+.meter span {
+  display:block;height:100%;width:0;background:var(--accent);
+  transition:width .2s ease;
+}
+.meter.danger-meter span {background:var(--danger)}
+.big-number {font-size:1.7rem;font-weight:800}
+.diagram {display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:15px 0}
+.node {
+  padding:10px 12px;border:1px solid #526680;
+  background:#111c2d;border-radius:10px;
+}
+.arrow {color:var(--accent);font-weight:900}
+.code {
+  padding:13px;background:#0d1523;border-radius:10px;
+  border:1px solid var(--border);overflow-x:auto;
+  color:#c9e7ff;font-family:ui-monospace,Consolas,monospace;
+}
+.quiz-question {border-top:1px solid var(--border);padding:15px 0}
+.quiz-question label {font-weight:400}
+.feedback {min-height:24px;font-weight:700}
+footer {border-top:1px solid var(--border);padding:25px 0;color:var(--muted)}
+@media(max-width:720px) {
+  .grid,.three {grid-template-columns:1fr}
+  header {padding-top:30px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Interactive cybersecurity lab</div>
+    <h1>Algorithmic Complexity &amp; Side-Channel Attacks</h1>
+    <p>Explore how resource-heavy algorithms can be abused, how implementation details can reveal secrets, and how to reduce these risks.</p>
+    <p><a href="#complexity" style="color:var(--accent)">Start exploring ↓</a></p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap navlinks">
+    <a href="#complexity">1. Complexity</a>
+    <a href="#hash">2. Hash tables</a>
+    <a href="#redos">3. ReDoS</a>
+    <a href="#channels">4. Side channels</a>
+    <a href="#timing">5. Timing &amp; Spectre</a>
+    <a href="#defenses">6. Defenses</a>
+    <a href="#quiz">7. Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- SECTION 1 -->
+<section id="complexity">
+  <div class="eyebrow">01 · Foundations</div>
+  <h2>Algorithmic complexity attacks</h2>
+  <p>An algorithmic-complexity attack supplies inputs that make a program consume unusually large amounts of CPU time or memory. A small input can sometimes trigger a disproportionate amount of work.</p>
+
+  <div class="grid three">
+    <div class="card">
+      <span class="pill">CPU</span>
+      <h3>Excessive computation</h3>
+      <p>An input triggers slow searches, repeated backtracking, or expensive operations.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Memory</span>
+      <h3>Excessive allocation</h3>
+      <p>An input causes a program to allocate or retain large amounts of memory.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Availability</span>
+      <h3>Service disruption</h3>
+      <p>Resource exhaustion can cause delays, errors, or outages.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Compare algorithm growth</h3>
+    <p>Move the slider to compare how the amount of work changes for linear and quadratic algorithms.</p>
+    <label for="sizeRange">Input size: <strong id="sizeLabel">20</strong></label>
+    <input id="sizeRange" type="range" min="1" max="100" value="20">
+
+    <div class="result">
+      <strong>Linear growth · O(n)</strong>
+      <div class="meter"><span id="linearBar"></span></div>
+      <p id="linearVal">20 operations</p>
+
+      <strong>Quadratic growth · O(n²)</strong>
+      <div class="meter danger-meter"><span id="quadraticBar"></span></div>
+      <p id="quadraticVal">400 operations</p>
+      <p id="complexityExplanation"></p>
+    </div>
+    <p class="warning">The bars compare operation counts using the same scale. They are not measured execution times.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Algorithmic attack</h3>
+      <p>Targets an expensive operation. A relatively small request can consume significant CPU or memory.</p>
+    </div>
+    <div class="card">
+      <h3>Volumetric denial of service</h3>
+      <p>Attempts to overwhelm a service or network with a large volume of traffic.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section id="hash">
+  <div class="eyebrow">02 · Data structures</div>
+  <h2>Hash-table denial of service</h2>
+  <p>Hash tables map keys into buckets. When many keys collide and land in the same bucket, operations can become slower. An attacker may try to create excessive collisions using carefully selected inputs.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Build a collision bucket</h3>
+      <p>Increase the number of keys to see how a crowded bucket develops.</p>
+      <label for="collisionRange">Number of colliding keys: <strong id="collisionLabel">8</strong></label>
+      <input id="collisionRange" type="range" min="1" max="40" value="8">
+
+      <div class="result">
+        <p><strong id="bucketTitle">Bucket 0</strong></p>
+        <div id="bucketVisual" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+        <p id="collisionDescription"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Compare collision strategies</h3>
+      <label for="strategySelect">Choose a strategy</label>
+      <select id="strategySelect">
+        <option value="list">Linked list</option>
+        <option value="tree">Balanced tree</option>
+        <option value="open">Open addressing</option>
+      </select>
+
+      <div class="result">
+        <p><strong>Estimated lookup work</strong></p>
+        <div class="big-number" id="strategyComplexity">4 operations</div>
+        <div class="meter"><span id="strategyMeter"></span></div>
+        <p id="strategyDescription"></p>
+        <p id="strategyDetail"></p>
+      </div>
+    </div>
+  </div>
+
+  <h3>What happens during a lookup?</h3>
+  <div class="diagram">
+    <div class="node">Input key</div><span class="arrow">→</span>
+    <div class="node">Hash function</div><span class="arrow">→</span>
+    <div class="node">Bucket</div><span class="arrow">→</span>
+    <div class="node">Search entries</div>
+  </div>
+  <p>With a linked list, a lookup may need to inspect many entries. A balanced tree can reduce lookup work in a crowded bucket. Open addressing searches other table positions when a slot is occupied.</p>
+  <p class="warning">These are simplified comparisons. Actual performance depends on implementation, hash function, load factor, and collision distribution.</p>
+</section>
+
+<!-- SECTION 3 -->
+<section id="redos">
+  <div class="eyebrow">03 · Regular expressions</div>
+  <h2>ReDoS and resource exhaustion</h2>
+  <p>Regular Expression Denial of Service (ReDoS) occurs when a regular-expression engine spends excessive time processing certain inputs. Some backtracking engines may explore many alternative matching paths.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Pattern explorer</h3>
+      <label for="regexSelect">Choose a pattern</label>
+      <select id="regexSelect">
+        <option value="nested">(a+)+</option>
+        <option value="letters">([a-zA-Z]+)*</option>
+        <option value="overlap">(a|aa)+</option>
+        <option value="optional">(a|a?)+</option>
+        <option value="repeat">(.*a){x}</option>
+      </select>
+
+      <label for="redosRange">Input length: <strong id="redosSizeLabel">8</strong></label>
+      <input id="redosRange" type="range" min="1" max="20" value="8">
+
+      <div class="result">
+        <span class="pill" id="redosRisk">Potentially costly</span>
+        <h3 id="redosPatternTitle">(a+)+</h3>
+        <p id="redosExplanation"></p>
+        <p><strong>Illustrative branching paths:</strong> <span id="branchCount">16</span></p>
+        <div id="branchVisual" style="display:flex;flex-wrap:wrap;gap:5px;margin:12px 0"></div>
+        <div class="meter danger-meter"><span id="redosMeter"></span></div>
+        <p id="redosRiskText"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>How backtracking works</h3>
+      <div class="diagram">
+        <div class="node">Try a match</div><span class="arrow">→</span>
+        <div class="node">Match fails</div><span class="arrow">→</span>
+        <div class="node">Try another path</div>
+      </div>
+      <p>A backtracking engine may revisit earlier choices when a match fails. Ambiguous patterns can create many branches, especially when an input nearly matches but fails near the end.</p>
+      <div class="code">Example: (a+)+$<br>Input shape: aaaaa...!</div>
+      <p class="warning">This demonstration visualizes possible branching. It does not execute the selected expression or predict actual runtime.</p>
+    </div>
+  </div>
+
+  <h3>Other resource-exhaustion examples</h3>
+  <div class="grid">
+    <div class="card">
+      <h3>Decompression bombs</h3>
+      <p>A small compressed file can expand into much more data, exhausting memory, storage, or CPU.</p>
+    </div>
+    <div class="card">
+      <h3>Expensive parsing</h3>
+      <p>Deeply nested or unusually complex input may cause parsers to consume excessive resources without appropriate limits.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section id="channels">
+  <div class="eyebrow">04 · Information leakage</div>
+  <h2>Side-channel attacks</h2>
+  <p>A side-channel attack infers information from observable effects of a system's operation rather than relying solely on its intended output. These effects can reveal secrets when implementation behavior depends on sensitive data.</p>
+
+  <div class="grid three">
+    <div class="card"><h3>Timing</h3><p>Differences in operation duration may reveal which computations or comparisons occurred.</p></div>
+    <div class="card"><h3>Cache behavior</h3><p>Memory access patterns can affect cache state and execution time.</p></div>
+    <div class="card"><h3>Power use</h3><p>Changes in electrical power consumption can correlate with internal operations.</p></div>
+    <div class="card"><h3>Electromagnetic emissions</h3><p>Electromagnetic signals from hardware can leak information about computations.</p></div>
+    <div class="card"><h3>Acoustic signals</h3><p>Sounds from devices can sometimes correlate with their operations.</p></div>
+    <div class="card"><h3>Data remanence</h3><p>Sensitive data may remain recoverable in memory or storage after use if not handled properly.</p></div>
+    <div class="card"><h3>Optical observation</h3><p>Light emissions or visible indicators can reveal aspects of device activity.</p></div>
+    <div class="card"><h3>Differential fault analysis</h3><p>Comparing normal and faulty computations can reveal information about internal state.</p></div>
+    <div class="card"><h3>Active and passive methods</h3><p>Passive methods observe behavior; active methods deliberately influence a system, such as by inducing faults.</p></div>
+  </div>
+
+  <h3>Why side channels matter</h3>
+  <p>A cryptographic algorithm may be mathematically sound while a particular implementation leaks information through timing, cache access, power consumption, or another physical or operational signal.</p>
+</section>
+
+<!-- SECTION 5 -->
+<section id="timing">
+  <div class="eyebrow">05 · Interactive demonstrations</div>
+  <h2>Timing attacks and speculative execution</h2>
+  <p>Timing attacks exploit differences in execution duration. Spectre-style attacks exploit speculative execution and microarchitectural state to infer information that should not be directly accessible.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Timing-based comparison</h3>
+      <p>Consider a comparison routine that stops at the first mismatching character. This toy model illustrates how the amount of matched input can influence duration.</p>
+
+      <label for="secretInput">Test string</label>
+      <input id="secretInput" type="text" value="SEC" maxlength="16" style="width:100%;margin-top:5px">
+
+      <div class="controls">
+        <button id="runTiming">Run timing demonstration</button>
+        <button id="resetTiming" type="button">Reset</button>
+      </div>
+
+      <div class="result" aria-live="polite">
+        <div class="big-number" id="timingResult">Not run</div>
+        <p id="timingExplanation">Run the toy model to see how matching characters affect its simulated duration.</p>
+        <div class="meter"><span id="timingMeter"></span></div>
+      </div>
+      <p class="warning">This is a deterministic illustration, not a real timing measurement and not a usable secret-recovery tool.</p>
+    </div>
+
+    <div class="card">
+      <h3>Constant-time comparison idea</h3>
+      <p>A constant-time comparison aims to avoid leaking information through early exits based on secret-dependent mismatches.</p>
+      <div class="code">Early-exit idea:<br>Compare each character<br>Stop at first mismatch</div>
+      <div class="code" style="margin-top:10px">Constant-time goal:<br>Process the full fixed-length value<br>Avoid secret-dependent early exits</div>
+      <p>Real constant-time behavior depends on compiler output, hardware, memory access, and the full implementation. Prefer well-reviewed cryptographic libraries.</p>
+    </div>
+  </div>
+
+  <h3>Square-and-multiply timing</h3>
+  <p>Some exponentiation algorithms perform different operations depending on exponent bits. If the operation sequence depends on a secret exponent and timing differences are observable, those differences may leak information.</p>
+
+  <div class="card">
+    <label for="exponentSelect">Illustrative exponent bit pattern</label>
+    <select id="exponentSelect">
+      <option value="101010">101010</option>
+      <option value="111111">111111</option>
+      <option value="100001">100001</option>
+      <option value="110011">110011</option>
+    </select>
+
+    <div class="controls">
+      <button id="runExponent">Simulate operation pattern</button>
+    </div>
+
+    <div class="result" aria-live="polite">
+      <p id="exponentOutput">Choose a bit pattern and run the simulation.</p>
+      <div class="diagram" id="exponentDiagram"></div>
+    </div>
+    <p class="warning">The diagram is a simplified conceptual model. It does not measure real execution time.</p>
+  </div>
+
+  <h3>Spectre and speculative execution</h3>
+  <div class="diagram">
+    <div class="node">CPU predicts a branch</div><span class="arrow">→</span>
+    <div class="node">Speculative work occurs</div><span class="arrow">→</span>
+    <div class="node">Cache state may change</div><span class="arrow">→</span>
+    <div class="node">Timing can reveal traces</div>
+  </div>
+  <p>Modern processors may execute instructions speculatively before confirming whether a branch should be taken. Although architectural results are discarded after a misprediction, some microarchitectural effects may remain and be measured. Spectre-family vulnerabilities use this general idea to infer information across security boundaries under particular conditions.</p>
+</section>
+
+<!-- SECTION 6 -->
+<section id="defenses">
+  <div class="eyebrow">06 · Mitigation</div>
+  <h2>Countermeasures and trade-offs</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Use robust algorithms</h3>
+      <p>Choose data structures and algorithms with suitable worst-case behavior. Avoid relying only on average-case performance when inputs may be adversarial.</p>
+    </div>
+    <div class="card">
+      <h3>Apply resource limits</h3>
+      <p>Set bounds on input size, nesting depth, execution time, memory use, and decompressed output. Rate-limit expensive operations.</p>
+    </div>
+    <div class="card">
+      <h3>Choose safer regex engines</h3>
+      <p>For untrusted input, consider engines with predictable execution guarantees, such as RE2 where its supported syntax fits the use case.</p>
+    </div>
+    <div class="card">
+      <h3>Use constant-time routines</h3>
+      <p>Use established cryptographic libraries and comparison functions designed to reduce secret-dependent timing leakage.</p>
+    </div>
+    <div class="card">
+      <h3>Reduce information exposure</h3>
+      <p>Use uniform authentication responses, limit detailed error messages, and avoid exposing unnecessary timing or system-state information.</p>
+    </div>
+    <div class="card">
+      <h3>Test and monitor</h3>
+      <p>Profile worst-case inputs, test resource ceilings, keep dependencies updated, and monitor abnormal CPU and memory usage.</p>
+    </div>
+  </div>
+
+  <h3>Operations that can complicate constant-time behavior</h3>
+  <p>Branches, secret-dependent memory access, division, shifts, multiplication, compiler optimizations, and hardware-specific behavior can affect timing. No single coding rule guarantees constant-time execution on every platform.</p>
+
+  <h3>Randomization</h3>
+  <p>Randomization can make some attacks harder, such as by reducing predictability of hash placement. It is not a universal fix: it should complement sound algorithms, limits, and careful implementation.</p>
+
+  <div class="result">
+    <strong class="good">Practical principle:</strong>
+    <p>Design for adversarial inputs, make expensive work bounded, avoid secret-dependent behavior where it matters, and verify the implementation rather than relying on assumptions.</p>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section id="quiz">
+  <div class="eyebrow">07 · Check your understanding</div>
+  <h2>Knowledge check</h2>
+  <p>Select one answer for each question, then check your results.</p>
+
+  <form id="quizForm">
+    <div class="quiz-question">
+      <strong>1. What is the goal of an algorithmic-complexity attack?</strong>
+      <label><input type="radio" name="q1" value="a"> To make a program use excessive resources</label>
+      <label><input type="radio" name="q1" value="b"> To improve algorithm performance</label>
+      <label><input type="radio" name="q1" value="c"> To compress every input</label>
+    </div>
+
+    <div class="quiz-question">
+      <strong>2. Why can hash collisions be a concern?</strong>
+      <label><input type="radio" name="q2" value="a"> They always delete stored data</label>
+      <label><input type="radio" name="q2" value="b"> Too many collisions can make operations expensive</label>
+      <label><input type="radio" name="q2" value="c"> They prevent all lookups</label>
+    </div>
+
+    <div class="quiz-question">
+      <strong>3. What does ReDoS exploit?</strong>
+      <label><input type="radio" name="q3" value="a"> Excessive backtracking or other costly regex behavior</label>
+      <label><input type="radio" name="q3" value="b"> Only incorrect passwords</label>
+      <label><input type="radio" name="q3" value="c"> Network encryption strength</label>
+    </div>
+
+    <div class="quiz-question">
+      <strong>4. Which is a side channel?</strong>
+      <label><input type="radio" name="q4" value="a"> A program's documented output only</label>
+      <label><input type="radio" name="q4" value="b"> Timing variation caused by internal operations</label>
+      <label><input type="radio" name="q4" value="c"> A source-code comment</label>
+    </div>
+
+    <div class="quiz-question">
+      <strong>5. What is the goal of constant-time comparison?</strong>
+      <label><input type="radio" name="q5" value="a"> Make runtime depend on the first mismatching character</label>
+      <label><input type="radio" name="q5" value="b"> Reduce secret-dependent timing differences</label>
+      <label><input type="radio" name="q5" value="c"> Skip input validation</label>
+    </div>
+
+    <div class="quiz-question">
+      <strong>6. Which is a useful resource-exhaustion defense?</strong>
+      <label><input type="radio" name="q6" value="a"> Remove all input limits</label>
+      <label><input type="radio" name="q6" value="b"> Accept arbitrarily deep input</label>
+      <label><input type="radio" name="q6" value="c"> Bound input size and expensive work</label>
+    </div>
+
+    <div class="controls">
+      <button type="submit">Check answers</button>
+      <button type="reset" id="resetQuiz">Clear answers</button>
+    </div>
+    <div id="quizFeedback" class="feedback" aria-live="polite"></div>
+  </form>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Learning reminder:</strong> The interactive demonstrations are simplified models. Real behavior depends on algorithms, runtime implementations, hardware, compiler optimizations, and deployment conditions.</p>
+    <p>Use these concepts for defensive design, secure development, and authorized testing.</p>
+  </div>
+</footer>
+
+<script>
+// SECTION 1: COMPLEXITY COMPARISON
+const sizeRange = document.getElementById("sizeRange");
+
+function updateComplexity() {
+  const n = Number(sizeRange.value);
+  const linear = n;
+  const quadratic = n * n;
+  const max = Math.max(linear, quadratic);
+
+  document.getElementById("sizeLabel").textContent = n;
+  document.getElementById("linearVal").textContent =
+    linear.toLocaleString() + " operations";
+  document.getElementById("quadraticVal").textContent =
+    quadratic.toLocaleString() + " operations";
+
+  document.getElementById("linearBar").style.width =
+    (linear / max * 100) + "%";
+  document.getElementById("quadraticBar").style.width =
+    (quadratic / max * 100) + "%";
+
+  document.getElementById("complexityExplanation").textContent =
+    "At input size " + n + ", quadratic growth requires " +
+    quadratic.toLocaleString() + " operation units compared with " +
+    linear.toLocaleString() + " for linear growth.";
+}
+
+sizeRange.addEventListener("input", updateComplexity);
+updateComplexity();
+
+
+// SECTION 2: HASH-TABLE DEMONSTRATION
+const collisionRange = document.getElementById("collisionRange");
+const strategySelect = document.getElementById("strategySelect");
+
+function updateHash() {
+  const k = Number(collisionRange.value);
+  const strategy = strategySelect.value;
+
+  document.getElementById("collisionLabel").textContent = k;
+
+  const bucket = document.getElementById("bucketVisual");
+  bucket.replaceChildren();
+
+  for (let i = 1; i <= k; i++) {
+    const key = document.createElement("span");
+    key.textContent = "Key " + i;
+    key.style.cssText =
+      "background:#294b53;color:#76d7c4;padding:7px 10px;border-radius:7px;font-size:12px;border:1px solid #47716e";
+    bucket.appendChild(key);
+  }
+
+  document.getElementById("collisionDescription").textContent =
+    k + " keys are stored in this conceptual bucket. " +
+    (k < 10
+      ? "The bucket is relatively small."
+      : k < 25
+        ? "More entries must be considered during a lookup."
+        : "This crowded bucket illustrates why excessive collisions can become a performance problem.");
+
+  let operations;
+  let description;
+  let detail;
+
+  if (strategy === "list") {
+    operations = Math.ceil(k / 2);
+    description = "Linked-list model";
+    detail = "Average illustrative lookup: about " + operations +
+      " entries inspected. Worst case: " + k + " entries.";
+  } else if (strategy === "tree") {
+    operations = Math.ceil(Math.log2(k + 1));
+    description = "Balanced-tree model";
+    detail = "Illustrative lookup: about " + operations +
+      " tree levels. Growth is logarithmic rather than linear.";
+  } else {
+    operations = Math.ceil((k + 1) / 2);
+    description = "Open-addressing model";
+    detail = "Illustrative probe count: about " + operations +
+      " slots. Clustering and table load affect actual probe counts.";
+  }
+
+  document.getElementById("strategyComplexity").textContent =
+    operations + (operations === 1 ? " operation" : " operations");
+
+  document.getElementById("strategyDescription").textContent = description;
+  document.getElementById("strategyDetail").textContent = detail;
+
+  document.getElementById("strategyMeter").style.width =
+    (operations / k * 100) + "%";
+}
+
+collisionRange.addEventListener("input", updateHash);
+strategySelect.addEventListener("change", updateHash);
+updateHash();
+
+
+// SECTION 3: REDOS BRANCHING VISUALIZATION
+const regexSelect = document.getElementById("regexSelect");
+const redosRange = document.getElementById("redosRange");
+
+const regexInfo = {
+  nested: {
+    title: "(a+)+",
+    risk: "Nested repetition",
+    explanation: "Nested repetition can create multiple ways to divide a sequence of matching characters.",
+    factor: 2
+  },
+  letters: {
+    title: "([a-zA-Z]+)*",
+    risk: "Repeated character groups",
+    explanation: "The repeated group may allow multiple ways to partition matching character sequences.",
+    factor: 2
+  },
+  overlap: {
+    title: "(a|aa)+",
+    risk: "Overlapping alternatives",
+    explanation: "The alternatives overlap, so a sequence may be divided into single-character or double-character matches.",
+    factor: 2
+  },
+  optional: {
+    title: "(a|a?)+",
+    risk: "Optional alternatives",
+    explanation: "The optional branch creates another possible matching choice.",
+    factor: 2
+  },
+  repeat: {
+    title: "(.*a){x}",
+    risk: "Repeated broad matching",
+    explanation: "Broad matching combined with repetition can require substantial backtracking in some contexts.",
+    factor: 1.5
+  }
+};
+
+function updateRedos() {
+  const info = regexInfo[regexSelect.value];
+  const n = Number(redosRange.value);
+
+  const estimate = Math.min(256, Math.round(Math.pow(info.factor, n)));
+  const visualCount = Math.min(32, Math.max(2, Math.ceil(Math.log2(estimate + 1))));
+
+  document.getElementById("redosSizeLabel").textContent = n;
+  document.getElementById("redosPatternTitle").textContent = info.title;
+  document.getElementById("redosRisk").textContent = info.risk;
+  document.getElementById("redosExplanation").textContent = info.explanation;
+
+  document.getElementById("branchCount").textContent =
+    estimate >= 256 ? "256+ (visualization capped)" : estimate;
+
+  const visual = document.getElementById("branchVisual");
+  visual.replaceChildren();
+
+  for (let i = 0; i < visualCount; i++) {
+    const branch = document.createElement("span");
+    branch.textContent = "Path " + (i + 1);
+    branch.style.cssText =
+      "background:#513444;color:#ffb1b1;border:1px solid #9c5d70;padding:6px 8px;border-radius:6px;font-size:11px";
+    visual.appendChild(branch);
+  }
+
+  const bar = Math.min(100, (Math.log2(estimate + 1) / 8) * 100);
+  document.getElementById("redosMeter").style.width = bar + "%";
+
+  document.getElementById("redosRiskText").textContent =
+    "The model displays up to 32 example paths. Changing the input size or pattern changes the illustration. This is not a measured count of real regex execution paths.";
+}
+
+regexSelect.addEventListener("change", updateRedos);
+redosRange.addEventListener("input", updateRedos);
+updateRedos();
+
+
+// SECTION 5: TIMING COMPARISON DEMONSTRATION
+const secret = "SECRET";
+const secretInput = document.getElementById("secretInput");
+
+document.getElementById("runTiming").addEventListener("click", () => {
+  const value = secretInput.value;
+  let matched = 0;
+  const steps = [];
+
+  for (let i = 0; i < secret.length; i++) {
+    const same = i < value.length && value[i] === secret[i];
+
+    steps.push({
+      position: i + 1,
+      result: same ? "Match" : "Mismatch"
+    });
+
+    if (!same) break;
+    matched++;
+  }
+
+  document.getElementById("timingResult").textContent =
+    matched + " matching characters";
+
+  document.getElementById("timingExplanation").textContent =
+    "The toy early-exit comparison stopped after " + steps.length +
+    " comparison(s).";
+
+  document.getElementById("timingMeter").style.width =
+    (matched / secret.length * 100) + "%";
+
+  const old = document.getElementById("timingSteps");
+  if (old) old.remove();
+
+  const output = document.createElement("div");
+  output.id = "timingSteps";
+  output.style.marginTop = "12px";
+
+  steps.forEach(step => {
+    const line = document.createElement("div");
+    line.style.padding = "5px";
+    line.textContent = "Character " + step.position + ": " + step.result;
+    line.style.color = step.result === "Match" ? "#76d7c4" : "#ff8585";
+    output.appendChild(line);
+  });
+
+  document.querySelector("#timingResult").parentElement.appendChild(output);
+});
+
+document.getElementById("resetTiming").addEventListener("click", () => {
+  secretInput.value = "SEC";
+  document.getElementById("timingResult").textContent = "Not run";
+  document.getElementById("timingExplanation").textContent =
+    "Run the toy model to see how matching characters affect its simulated duration.";
+  document.getElementById("timingMeter").style.width = "0";
+
+  const steps = document.getElementById("timingSteps");
+  if (steps) steps.remove();
+});
+
+
+// SECTION 5: SQUARE-AND-MULTIPLY DEMONSTRATION
+document.getElementById("runExponent").addEventListener("click", () => {
+  const bits = document.getElementById("exponentSelect").value;
+  const diagram = document.getElementById("exponentDiagram");
+  diagram.replaceChildren();
+
+  let squares = 0;
+  let multiplications = 0;
+
+  for (let i = 0; i < bits.length; i++) {
+    const square = document.createElement("div");
+    square.className = "node";
+    square.textContent = "Square";
+    diagram.appendChild(square);
+    squares++;
+
+    if (bits[i] === "1") {
+      const multiply = document.createElement("div");
+      multiply.className = "node";
+      multiply.textContent = "Multiply";
+      diagram.appendChild(multiply);
+      multiplications++;
+    }
+
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.textContent = "→";
+    diagram.appendChild(arrow);
+  }
+
+  document.getElementById("exponentOutput").textContent =
+    "Pattern " + bits + ": " + squares +
+    " square operations and " + multiplications +
+    " multiply operations. Total: " +
+    (squares + multiplications) + " conceptual operations.";
+});
+
+
+// SECTION 7: KNOWLEDGE CHECK
+const correctAnswers = {
+  q1:"a",
+  q2:"b",
+  q3:"a",
+  q4:"b",
+  q5:"b",
+  q6:"c"
+};
+
+document.getElementById("quizForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  let score = 0;
+  let answered = 0;
+
+  for (const [question, answer] of Object.entries(correctAnswers)) {
+    const selected = form.querySelector(
+      'input[name="' + question + '"]:checked'
+    );
+
+    if (selected) {
+      answered++;
+      if (selected.value === answer) score++;
+    }
+  }
+
+  const feedback = document.getElementById("quizFeedback");
+
+  if (answered < 6) {
+    feedback.textContent =
+      "You answered " + answered +
+      " of 6 questions. Answer all questions to receive your score.";
+    feedback.className = "feedback warning";
+  } else {
+    feedback.textContent =
+      "Score: " + score + "/6. " +
+      (score === 6 ? "Excellent work!" : "Review the sections and try again.");
+    feedback.className =
+      "feedback " + (score >= 5 ? "good" : "warning");
+  }
+});
+
+document.getElementById("resetQuiz").addEventListener("click", () => {
+  document.getElementById("quizFeedback").textContent = "";
+});
+</script>
+</body>
+</html>

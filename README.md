@@ -1,40 +1,80 @@
-# Timing Leak Lab
 
-A self-contained interactive lesson about **timing side channels** and the relationship between algorithmic complexity and information leakage.
+# Algorithmic Complexity & Side-Channel Security Lab
 
-## What it teaches
+## Overview
 
-The app models a service that compares a guess against a short demo token. In the early-exit model, comparison stops at the first mismatching character. Synthetic timing units make visible how secret-dependent work can create an observable signal.
+This is an interactive, browser-based cybersecurity learning project exploring algorithmic-complexity attacks, resource exhaustion, regular-expression denial of service (ReDoS), side-channel attacks, timing leakage, and speculative execution.
 
-It compares:
-- **Early-exit comparison:** work depends on the location of the first mismatch.
-- **Fixed-work comparison:** every position is checked before returning, so modeled work does not depend on the first mismatch.
+The project runs locally in a web browser and does not require a server or external JavaScript libraries.
 
-It also includes a measurement history, optional synthetic timing noise, reset control, and a shuffled four-question knowledge check.
+## Features
 
-## Run it
+### 1. Algorithmic Complexity
+- Compare linear and quadratic algorithm growth.
+- Adjust input size using a slider.
+- View operation counts and visual bars that change as the input changes.
 
-No installation, build step, or external dependency is required.
+### 2. Hash-Table Denial of Service
+- Adjust the number of colliding keys.
+- Watch individual keys appear inside a conceptual hash bucket.
+- Compare linked-list, balanced-tree, and open-addressing strategies.
+- View estimated lookup work that changes with the selected strategy and number of keys.
 
-1. Download or clone this repository.
-2. Open `index.html` in a modern browser.
-3. Choose a demo token and enter a five-letter guess.
-4. Click **Measure guess** and compare guesses with different matching prefixes.
-5. Change the noise setting and compare the two timing models.
-6. Complete the quick-check questions.
+### 3. ReDoS and Resource Exhaustion
+- Explore several potentially expensive regular-expression patterns.
+- Adjust the input length.
+- View a changing branching-path illustration and conceptual risk indicator.
+- Learn about decompression bombs and expensive parsing.
 
-## Safety and limitations
+### 4. Side-Channel Attacks
+- Explore timing, cache behavior, power consumption, electromagnetic emissions, acoustic signals, data remanence, optical observation, and differential fault analysis.
+- Understand the difference between active and passive side-channel methods.
 
-All timing values are synthetic and generated locally in the browser. The app does not connect to a service or perform real credential guessing. The values are not empirical measurements of cryptographic code.
+### 5. Timing and Spectre
+- Run a simplified character-comparison timing demonstration.
+- View the individual comparison steps.
+- Explore square-and-multiply operation patterns.
+- Learn how speculative execution and cache behavior can create information leakage.
 
-Fixed-work comparisons can reduce timing leakage, but real constant-time programming must account for compiler transformations, memory access patterns, CPU behavior, and the wider system. This visualization illustrates a principle; it is not a security proof.
+### 6. Countermeasures
+- Review safer algorithms, resource limits, constant-time routines, safer regular-expression engines, randomization, and monitoring.
+
+### 7. Knowledge Check
+- Complete six multiple-choice questions.
+- Receive a score based on the answers.
+
+## How to Run
+
+1. Save the project files in the same folder.
+2. Open `index.html` in a modern web browser.
+3. Use the navigation bar to explore the seven sections.
+4. Adjust the sliders and dropdowns to update the demonstrations.
+5. Use the buttons in the timing and speculative-execution section to run the simulations.
+6. Complete the knowledge check.
 
 ## Files
 
-- `index.html` — complete interactive app, including HTML, CSS, and JavaScript.
-- `README.md` — project documentation.
-- `reflection.md` — reflection on the AI-assisted workflow and learning.
+- `index.html` — The complete interactive application, including HTML, CSS, and JavaScript.
+- `README.md` — Project overview and instructions.
+- `reflection.md` — Reflection on the learning process, design choices, and limitations.
 
-## AI-assisted development
+## Technical Details
 
-AI assistance was used to brainstorm the lesson, draft the self-contained app, and prepare the documentation. The student should review and test the model, particularly the distinction between asymptotic work and real-world side-channel behavior.
+The application uses standard HTML, CSS, and JavaScript. It does not require a build process, package installation, or internet connection.
+
+## Safety and Limitations
+
+The demonstrations use simplified conceptual models. They do not benchmark real attack performance, execute potentially expensive regular expressions, or perform actual secret recovery.
+
+The hash-table lookup values are illustrative estimates. The ReDoS branching display is a conceptual visualization rather than a measurement of real regular-expression execution paths. The timing demonstration uses a fixed model rather than measuring real elapsed time.
+
+Actual behavior depends on the programming language, runtime, algorithm, compiler, hardware, and deployment environment.
+
+## Defensive Lessons
+
+- Bound input sizes and computational work.
+- Set appropriate memory, execution-time, and decompression limits.
+- Select algorithms with suitable worst-case behavior.
+- Avoid vulnerable regular-expression patterns when processing untrusted input.
+- Use established cryptographic libraries and constant-time routines where appropriate.
+- Test worst-case inputs and monitor resource usage.
